@@ -1,0 +1,13 @@
+# Credits
+.env
+.env.dev
+.env.prod
+
+# IDE
+.idea
+.vscode
+.DS_Store
+
+# Logs
+logs
+*.log

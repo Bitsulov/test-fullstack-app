@@ -1,0 +1,56 @@
+services:
+  frontend:
+    build:
+      context: /frontend
+      target: dev
+    container_name: "test-frontend-dev"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_CRYPTO_KEY: ${CRYPTO_KEY}
+      VITE_API_BASE: ${API_BASE}
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    command: [ "npm", "run", "dev", "--", "--host" ]
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: './backend'
+      target: dev
+    container_name: 'test-backend-dev'
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: ${POSTGRES_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TIME: ${JWT_ACCESS_TIME}
+      JWT_REFRESH_TIME: ${JWT_REFRESH_TIME}
+    working_dir: '/app'
+    ports:
+      - '8080:8080'
+    restart: 'unless-stopped'
+
+  db:
+    image: 'postgres:17.7-alpine'
+    container_name: 'test-postgres-db-dev'
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - 'db_data:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+    restart: 'unless-stopped'
+
+volumes:
+  db_data:
